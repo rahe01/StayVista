@@ -25,7 +25,7 @@ const MyListings = () => {
 
     const handleDelete = async id => {
         console.log(id)
-       
+     
       }
 
     if (isLoading) return <LoadingSpinner />
