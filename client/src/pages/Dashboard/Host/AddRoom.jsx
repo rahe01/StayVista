@@ -38,10 +38,9 @@ const AddRoom = () => {
       setLoading(false)
     },
   })
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true)
+    setLoading(true);
     const form = e.target;
     const location = form.location.value;
     const category = form.category.value;
@@ -59,7 +58,7 @@ const AddRoom = () => {
       image: user?.photoURL,
       email: user?.email,
     };
-
+  
     try {
       const image_url = await imageUpload(image);
       const roomData = {
@@ -77,17 +76,18 @@ const AddRoom = () => {
         image: image_url,
       };
       console.table(roomData);
-      // TODO: Add logic to save roomData to your database or API
       await mutateAsync(roomData);
     } catch (error) {
       console.error("Error uploading image or saving room data:", error);
       setLoading(false);
     }
   };
-  const handleImage = image => {
-    setImagePreview(URL.createObjectURL(image))
-    setImageText(image.name)
-  }
+  
+  const handleImage = (image) => {
+    setImagePreview(URL.createObjectURL(image));
+    setImageText(image.name);
+  };
+  
 
 
   return (
