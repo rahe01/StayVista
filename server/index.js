@@ -91,8 +91,24 @@ async function run() {
 
     app.put('/user' , async (req, res) => {
       const user = req.body
-      const option = { upsert: true }
       const query = {email: user?.email}
+
+      const isExist = await usersCollection.findOne(query)
+      if (isExist) {
+        if(user.status === 'Requested'){
+          const result = await usersCollection.updateOne(query, { $set: { status: user?.status } })
+          return res.send(result)
+        }
+        else{
+          return res.send(isExist)
+        }
+  
+       
+      }
+      
+
+      const option = { upsert: true }
+     
       const updateDoc = {
         $set: {
           ...user,
@@ -100,6 +116,12 @@ async function run() {
         },
       }
       const result = await usersCollection.updateOne(query, updateDoc, option)
+      res.send(result)
+    })
+
+    // get user data from db
+    app.get('/users' , async (req, res) => {
+      const result = await usersCollection.find().toArray()
       res.send(result)
     })
 

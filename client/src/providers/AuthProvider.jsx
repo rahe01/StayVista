@@ -68,7 +68,18 @@ const AuthProvider = ({ children }) => {
   // save user in db
 
   const saveUser = async (user) => {
-    const {data} = await axios.put(`/user` )
+
+    const currentUser = {
+      email: user?.email,
+     
+      role: 'guest',
+      status: 'Verified'
+    }
+
+
+
+    const {data} = await axios.put(`${import.meta.env.VITE_API_URL}/user` , currentUser )
+    return data
   }
 
   // onAuthStateChange
@@ -77,6 +88,7 @@ const AuthProvider = ({ children }) => {
       setUser(currentUser)
       if (currentUser) {
         getToken(currentUser.email)
+        saveUser(currentUser)
       }
       setLoading(false)
     })
