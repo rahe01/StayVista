@@ -49,6 +49,7 @@ async function run() {
   try {
 
     const roomsCollection = client.db('stayVista').collection('rooms')
+    const usersCollection = client.db('stayVista').collection('users')
 
 
 
@@ -85,6 +86,22 @@ async function run() {
       }
     })
 
+
+    // save user data in db
+
+    app.put('/user' , async (req, res) => {
+      const user = req.body
+      const option = { upsert: true }
+      const query = {email: user?.email}
+      const updateDoc = {
+        $set: {
+          ...user,
+          timeStamp : Date.now()
+        },
+      }
+      const result = await usersCollection.updateOne(query, updateDoc, option)
+      res.send(result)
+    })
 
 
     // get all rooms from db
