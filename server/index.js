@@ -126,6 +126,18 @@ async function run() {
     })
 
 
+
+
+    // get user email from db
+    app.get('/user/:email' , async (req, res) => {
+      const email = req.params.email
+      const query = {email}
+      const result = await usersCollection.findOne(query)
+      res.send(result)
+  
+    })
+
+
     // get all rooms from db
     app.get('/rooms', async (req, res) => {
       const category = req.query.category
