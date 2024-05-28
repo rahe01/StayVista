@@ -52,6 +52,28 @@ async function run() {
     const usersCollection = client.db('stayVista').collection('users')
 
 
+    // verify admin middlewere
+    const verifyAdmin = async (req, res, next) => {
+      const user = req.user
+      const query = {email: user?.email}
+      const result = await usersCollection.findOne(query)
+      if(!result || result?.role !== 'admin') {
+        return res.status(403).send({message: 'forbidden access'})
+      }
+      next()
+    }
+    // verify host middlewere
+    const verifyHost = async (req, res, next) => {
+      const user = req.user
+      const query = {email: user?.email}
+      const result = await usersCollection.findOne(query)
+      if(!result || result?.role !== 'host') {
+        return res.status(403).send({message: 'forbidden access'})
+      }
+      next()
+    }
+
+
 
 
 
@@ -120,7 +142,7 @@ async function run() {
     })
 
     // get user data from db
-    app.get('/users' , async (req, res) => {
+    app.get('/users' , verifyToken, verifyAdmin, async (req, res) => {
       const result = await usersCollection.find().toArray()
       res.send(result)
     })
@@ -167,14 +189,14 @@ async function run() {
     })
 
     // save room
-    app.post('/room', async (req, res) => {
+    app.post('/room', verifyToken,verifyHost, async (req, res) => {
       const room = req.body
       const result = await roomsCollection.insertOne(room)
       res.send(result)
     })
 
     // delet room
-    app.delete('/roommm/:id' , async (req, res) => {
+    app.delete('/roommm/:id' ,verifyToken,verifyHost, async (req, res) => {
       const id = req.params.id
       const query = { _id: new ObjectId(id) }
       const result = await roomsCollection.deleteOne(query)
@@ -184,7 +206,7 @@ async function run() {
 
     // fetch by host
 
-    app.get('/my-listings/:email' , async (req, res) => {
+    app.get('/my-listings/:email' ,verifyToken,verifyHost, async (req, res) => {
       const email = req.params.email
       const query = {'host.email': email}
       const result = await roomsCollection.find(query).toArray()
