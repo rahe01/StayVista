@@ -137,6 +137,22 @@ async function run() {
   
     })
 
+    // update user
+
+    app.patch('/users/update/:email' , async (req, res) => {
+      const email = req.params.email
+      const user = req.body
+      const query = {email}
+      const updatedoc = {
+        $set: {
+          ...user,
+          timeStamp : Date.now()
+        },
+      }
+      const result = await usersCollection.updateOne(query, updatedoc)
+      res.send(result)
+    })
+
 
     // get all rooms from db
     app.get('/rooms', async (req, res) => {

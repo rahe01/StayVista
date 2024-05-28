@@ -41,7 +41,7 @@ export const router = createBrowserRouter([
         element:<Statistict></Statistict>
       },
       {
-        path:'addroom',
+        path:'add-room',
         element:<AddRoom></AddRoom>
       },
       {

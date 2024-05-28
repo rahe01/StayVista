@@ -13,16 +13,22 @@ import MenuItem from "./Menu/MenuItem";
 import HostMenu from "./Menu/HostMenu";
 import AdminMenu from "./Menu/AdminMenu";
 import GuestMenu from "./Menu/GuestMenu";
+import ToggleBtn from "../../Shared/Button/ToggleBtn";
 
 const Sidebar = () => {
   const { logOut } = useAuth();
   const [isActive, setActive] = useState(false);
   const [role, isLoading] = useRole();
   console.log(role, isLoading);
+  const [toggle , setToggle] = useState(true);
 
   // Sidebar Responsive Handler
   const handleToggle = () => {
     setActive(!isActive);
+  };
+
+  const toggleHandler = () => {
+    setToggle(!toggle);
   };
   return (
     <>
@@ -75,6 +81,8 @@ const Sidebar = () => {
           <div className="flex flex-col justify-between flex-1 mt-6">
             {/* Conditional toggle button here.. */}
 
+            {role === 'host' && <ToggleBtn toggleHandler={toggleHandler} toggle={toggle}></ToggleBtn>}
+
             {/*  Menu Items */}
             <nav>
               {/* Statistics */}
@@ -85,9 +93,9 @@ const Sidebar = () => {
                 icon={BsGraphUp}
               ></MenuItem>
               {role === "guest" && <GuestMenu></GuestMenu>}
-              {role === "host" && <HostMenu />}
-              {/* {role === "admin" && <AdminMenu />} */}
-               <AdminMenu />
+              {role === "host" ? toggle ? <HostMenu /> : <GuestMenu /> : undefined}
+              {role === "admin" && <AdminMenu />}
+              
             </nav>
           </div>
         </div>
