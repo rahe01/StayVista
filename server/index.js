@@ -283,6 +283,14 @@ async function run() {
       res.send(result)
     })
 
+    // get host booking
+    app.get('/manage-bookings/:email', verifyToken, verifyHost, async (req, res) => {
+      const email = req.params.email
+      const query = { 'host.email' : email }
+      const result = await bookingCollection.find(query).toArray()
+      res.send(result)
+    })
+
     // delet booking room
 
     app.delete('/booking/:id' ,verifyToken, async (req, res) => {
