@@ -5,6 +5,7 @@ const cors = require('cors')
 const cookieParser = require('cookie-parser')
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb')
 const jwt = require('jsonwebtoken')
+const stripe = require('stripe')(process.env.STRIPE_SECRET)
 
 const port = process.env.PORT || 8000
 
@@ -50,6 +51,7 @@ async function run() {
 
     const roomsCollection = client.db('stayVista').collection('rooms')
     const usersCollection = client.db('stayVista').collection('users')
+    const bookingCollection = client.db('stayVista').collection('bookings')
 
 
     // verify admin middlewere
@@ -106,6 +108,25 @@ async function run() {
       } catch (err) {
         res.status(500).send(err)
       }
+    })
+
+    // create payment intent
+
+    app.post('/create-payment-intent', verifyToken, async (req, res) => {
+      const price = req.body.price
+      const priceInCent = parseFloat(price) * 100
+      if (!price || priceInCent < 1) return
+      // generate clientSecret
+      const { client_secret } = await stripe.paymentIntents.create({
+        amount: priceInCent,
+        currency: 'usd',
+        // In the latest version of the API, specifying the `automatic_payment_methods` parameter is optional because Stripe enables its functionality by default.
+        automatic_payment_methods: {
+          enabled: true,
+        },
+      })
+      // send client secret as response
+      res.send({ clientSecret: client_secret })
     })
 
 
@@ -220,6 +241,58 @@ async function run() {
       const result = await roomsCollection.findOne(query)
       res.send(result)
     })
+
+    // save bookings
+
+    app.post('/booking', verifyToken, async (req, res) => {
+      const bookingData = req.body
+      const result = await bookingCollection.insertOne(bookingData)
+
+      // const roomId = bookingData?.roomId
+      // const filter = { _id: new ObjectId(roomId) }
+      // const updatedDoc = {
+      //   $set: {
+      //     Booked : true
+      //   },
+      // }
+      // const updateResult = await roomsCollection.updateOne(filter, updatedDoc)
+      res.send(result)
+    })
+    
+    app.patch('/room/status/:id', verifyToken, async (req, res) => {
+      const id = req.params.id
+      const status = req.body.status
+      const filter = { _id: new ObjectId(id) }
+      const updatedDoc = {
+        $set: {
+          Booked: status,
+        
+        },
+      }
+      const result = await roomsCollection.updateOne(filter, updatedDoc)
+      res.send(result)
+    })
+
+
+    // get guest booking
+
+    app.get('/my-bookings/:email', verifyToken, async (req, res) => {
+      const email = req.params.email
+      const query = { 'guest.email' : email }
+      const result = await bookingCollection.find(query).toArray()
+      res.send(result)
+    })
+
+    // delet booking room
+
+    app.delete('/booking/:id' ,verifyToken, async (req, res) => {
+      const id = req.params.id
+      const query = { _id: new ObjectId(id) }
+      const result = await bookingCollection.deleteOne(query)
+      res.send(result)
+    })
+
+
 
 
 

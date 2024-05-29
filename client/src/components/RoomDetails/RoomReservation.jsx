@@ -6,10 +6,10 @@ import { differenceInCalendarDays } from "date-fns";
 import BookingModal from "../Modal/BookingModal";
 import useAuth from "../../hooks/useAuth";
 
-const RoomReservation = ({ room }) => {
-  const {user} = useAuth()
-  
-  const [inOpen , setIsOpen] = useState(false)
+const RoomReservation = ({ room, refetch }) => {
+  const { user } = useAuth();
+
+  const [inOpen, setIsOpen] = useState(false);
 
   const [state, setState] = useState([
     {
@@ -19,11 +19,9 @@ const RoomReservation = ({ room }) => {
     },
   ]);
 
-
-
-  const closeModal = () =>{
-    setIsOpen(false)
-  }
+  const closeModal = () => {
+    setIsOpen(false);
+  };
 
   // total days * price
   const totalPrice =
@@ -56,9 +54,22 @@ const RoomReservation = ({ room }) => {
       </div>
       <hr />
       <div className="p-4">
-        <Button onClick={() => setIsOpen(true)} label={"Reserve"} />
+        <Button
+          disabled={room?.Booked === true}
+          onClick={() => setIsOpen(true)}
+          label={room?.Booked ? 'Booked' : 'Reserve'}
+        />
       </div>
-      <BookingModal isOpen={inOpen} closeModal={closeModal} bookingInfo={{...room , price:totalPrice , guest:{name: user?.displayName}}}></BookingModal>
+      <BookingModal
+        refetch={refetch}
+        isOpen={inOpen}
+        closeModal={closeModal}
+        bookingInfo={{
+          ...room,
+          price: totalPrice,
+          guest: { name: user?.displayName , email: user?.email  , image : user?.photoURL},
+        }}
+      ></BookingModal>
       <hr />
       <div className="p-4 flex items-center justify-between font-semibold text-lg">
         <div>Total</div>
