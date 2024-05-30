@@ -7,7 +7,7 @@ import LoadingSpinner from '../Shared/LoadingSpinner'
 const options = {
   title: 'Sales Over Time',
   curveType: 'function',
-  legend: { position: 'bottom' },
+  legend: { position: 'bottom' },             
   series: [{ color: '#F43F5E' }],
 }
 const SalesLineChart = ({ data }) => {
