@@ -300,6 +300,54 @@ async function run() {
       res.send(result)
     })
 
+      // Admin Statistics
+      app.get('/admin-stat', verifyToken, verifyAdmin, async (req, res) => {
+        const bookingDetails = await bookingCollection
+          .find(
+            {},
+            {
+              projection: {
+                date: 1,
+                price: 1,
+              },
+            }
+          )
+          .toArray()
+  
+        const totalUsers = await usersCollection.countDocuments()
+        const totalRooms = await roomsCollection.countDocuments()
+        const totalPrice = bookingDetails.reduce(
+          (sum, booking) => sum + booking.price,
+          0
+        )
+        // const data = [
+        //   ['Day', 'Sales'],
+        //   ['9/5', 1000],
+        //   ['10/2', 1170],
+        //   ['11/1', 660],
+        //   ['12/11', 1030],
+        // ]
+        const chartData = bookingDetails.map(booking => {
+          const day = new Date(booking.date).getDate()
+          const month = new Date(booking.date).getMonth() + 1
+          const data = [`${day}/${month}`, booking?.price]
+          return data
+        })
+        chartData.unshift(['Day', 'Sales'])
+        // chartData.splice(0, 0, ['Day', 'Sales'])
+  
+        console.log(chartData)
+  
+        console.log(bookingDetails)
+        res.send({
+          totalUsers,
+          totalRooms,
+          totalBookings: bookingDetails.length,
+          totalPrice,
+          chartData,
+        })
+      })
+
 
 
 

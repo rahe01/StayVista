@@ -3,7 +3,7 @@ import AdminStatistics from "../Admin/AdminStatistict";
 
 
 const Statistict = () => {
-    const [role , isLoading] = useRole()
+    const [role ] = useRole()
     return (
         <div>
           {role === "admin" && <AdminStatistics></AdminStatistics>}
